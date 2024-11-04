@@ -162,9 +162,53 @@ void modify_dict_array(py::dict& d) {
     });
 
 
-    // 等待子线程完成
+    std::map<std::string, void *> stl_map_pointer;
+    py::array_t<uint64_t> col_numpy6(arr_size);
+    py::buffer_info buf6 = col_numpy6.request();
+    d["sub_uint64_1"] = col_numpy6;
+    uint64_t *ptr6 = static_cast<uint64_t *>(buf6.ptr);
+    std::cout << "1 ptr6 pointer: " << ptr6 << std::endl;
+    // for (size_t i = 0; i < arr_size; ++i) {
+    //     std::cout << "1-1 ptr6 pointer: " << ptr6 << std::endl;
+    //     ptr6[i] = i * 640;
+    // }
+    std::cout << "2 ptr6 pointer: " << ptr6 << std::endl;
+    stl_map_pointer["sub_uint64_1"] = static_cast<void *>(buf6.ptr);
+    std::cout << "3 ptr6 pointer: " << ptr6 << std::endl;
+    std::cout << "ptr6 pointer: " << ptr6 << ", stl_map_pointer[sub_uint64_1]" << (static_cast<uint64_t *>(stl_map_pointer["sub_uint64_1"])) << std::endl;
+    for (size_t i = 0; i < arr_size; ++i) {
+        std::cout << "3-1 ptr6 pointer: " << ptr6 << "*ptr[i]:" << &ptr6[i]<< std::endl;
+        std::cout << ptr6[i] << std::endl;
+    }
+
+    py::array_t<uint32_t> col_numpy7(arr_size);
+    py::buffer_info buf7 = col_numpy7.request();
+    d["sub_uint32_1"] = col_numpy7;
+    uint32_t *ptr7 = static_cast<uint32_t *>(buf7.ptr);
+    stl_map_pointer["sub_uint32_1"] = static_cast<void *>(buf7.ptr);
+
+
+    std::thread workerThread1([&arr_size, &stl_map_pointer]() {
+        void* ptr6 = stl_map_pointer["sub_uint64_1"];
+        uint64_t *ptr6_1 = static_cast<uint64_t *>(ptr6);
+        std::cout << "4 ptr6_1 pointer: " << ptr6_1 << std::endl;
+        for (size_t i = 0; i < arr_size; ++i) {
+            std::cout << "4-1 ptr6 pointer: " << ptr6_1 << "*ptr[i]:" << &ptr6_1[i]<< std::endl;
+            ptr6_1[i] = i * 64 + 3;
+        }
+        void* ptr7 = stl_map_pointer["sub_uint32_1"];
+        uint32_t *ptr7_1 = static_cast<uint32_t *>(ptr7);
+        std::cout << "4 ptr7_1 pointer: " << ptr7_1 << std::endl;
+        for (size_t i = 0; i < arr_size; ++i) {
+            std::cout << "4-1 ptr6 pointer: " << ptr7_1 << "*ptr[i]:" << &ptr7_1[i]<< std::endl;
+            ptr7_1[i] = i * 64 + 4;
+        }
+    });
+
+    // // 等待子线程完成
 
     workerThread.join();
+    workerThread1.join();
 
 
 }

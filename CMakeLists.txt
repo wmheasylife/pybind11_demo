@@ -13,6 +13,8 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 pybind11_add_module(wmh_example wmh_example.cpp ${SUB_FILES})
 pybind11_add_module(class_example class_example.cpp ${SUB_FILES})
 pybind11_add_module(class_example2 class_example2.cpp ${SUB_FILES})
+pybind11_add_module(numpy_example numpy_array.cpp ${SUB_FILES})
+
 
 pybind11_add_module(op_example op_example.cpp ${SUB_FILES})
 pybind11_add_module(smart_pointer_example smart_pointer.cpp ${SUB_FILES})
